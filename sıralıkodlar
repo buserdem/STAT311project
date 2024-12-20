@@ -1,64 +1,80 @@
-CREATE TABLE Countries (
-    country_id CHAR(2) PRIMARY KEY,
-    country_name VARCHAR(100) NOT NULL
+CREATE TABLE COUNTRIES (
+    country_id CHAR(9) PRIMARY KEY,
+    country_name VARCHAR(50) NOT NULL
 );
 
-CREATE TABLE Locations (
-    location_id INT PRIMARY KEY,
+CREATE TABLE LOCATIONS (
+    location_id CHAR(9) PRIMARY KEY,
     full_address VARCHAR(255),
     postal_code VARCHAR(20),
-    country_id CHAR(2),
-    FOREIGN KEY (country_id) REFERENCES Countries(country_id)
+    country_id CHAR(9),
+    FOREIGN KEY (country_id) REFERENCES COUNTRIES(country_id) ON DELETE SET NULL ON UPDATE CASCADE
 );
 
-CREATE TABLE Jobs (
-    job_id INT PRIMARY KEY,
-    job_title VARCHAR(100),
-    min_salary DECIMAL(10, 2),
-    max_salary DECIMAL(10, 2)
-);
-
-CREATE TABLE Employees (
-    employee_id INT PRIMARY KEY,
-    first_name VARCHAR(50),
-    last_name VARCHAR(50),
-    email VARCHAR(100),
-    phone_no VARCHAR(20),
-    manager_id INT,
-    job_id INT,
-    dept_id INT,
-    FOREIGN KEY (manager_id) REFERENCES Employees(employee_id),
-    FOREIGN KEY (job_id) REFERENCES Jobs(job_id),
-    FOREIGN KEY (dept_id) REFERENCES Departments(dept_id)
-);
-
-CREATE TABLE Departments (
-    dept_id INT PRIMARY KEY,
+CREATE TABLE DEPARTMENTS (
+    dept_id CHAR(9) PRIMARY KEY,
     dept_name VARCHAR(100) NOT NULL,
-    location_id INT,
-    employee_id INT,
-    FOREIGN KEY (location_id) REFERENCES Locations(location_id),
-    FOREIGN KEY (employee_id) REFERENCES Employees(employee_id)
+    location_id CHAR(9),
+    FOREIGN KEY (location_id) REFERENCES LOCATIONS(location_id) ON DELETE SET NULL ON UPDATE CASCADE
 );
 
-CREATE TABLE JobHistory (
-    employee_id INT,
-    dept_id INT,
-    latest_work_experience VARCHAR(255),
-    projects VARCHAR(500),
-    education VARCHAR(255),
-    start_date DATE,
-    end_date DATE,
-    PRIMARY KEY (employee_id, start_date),
-    FOREIGN KEY (employee_id) REFERENCES Employees(employee_id),
-    FOREIGN KEY (dept_id) REFERENCES Departments(dept_id)
+CREATE TABLE JOBS (
+    job_id CHAR(9) PRIMARY KEY,
+    job_title VARCHAR(100) NOT NULL,
+    salary DECIMAL(10, 2)
 );
 
-CREATE TABLE Managers (
-    manager_id INT PRIMARY KEY,
+CREATE TABLE MANAGERS (
+    manager_id CHAR(9) PRIMARY KEY,
     first_name VARCHAR(50),
-    last_name VARCHAR(50),
-    email VARCHAR(100),
+    last_name VARCHAR(50) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    phone_no VARCHAR(20)
+);
+
+CREATE TABLE EMPLOYEES (
+    employee_id CHAR(9) PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
     phone_no VARCHAR(20),
-    FOREIGN KEY (manager_id) REFERENCES Employees(employee_id)
+    manager_id CHAR(9),
+    job_id CHAR(9) NOT NULL,
+    dept_id CHAR(9) NOT NULL,
+    FOREIGN KEY (manager_id) REFERENCES MANAGERS(manager_id) ON DELETE SET NULL ON UPDATE CASCADE,
+    FOREIGN KEY (job_id) REFERENCES JOBS(job_id) ON DELETE SET NULL ON UPDATE CASCADE,
+    FOREIGN KEY (dept_id) REFERENCES DEPARTMENTS(dept_id) ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+CREATE TABLE JOB_HISTORY (
+    job_history_id CHAR(9) PRIMARY KEY,
+    employee_id CHAR(9),
+    dept_id CHAR(9),
+    job_id CHAR(9),
+    start_date DATE NOT NULL,
+    end_date DATE,
+    FOREIGN KEY (employee_id) REFERENCES EMPLOYEES(employee_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (job_id) REFERENCES JOBS(job_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (dept_id) REFERENCES DEPARTMENTS(dept_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE JOB_GRADES (
+    grade_level CHAR(1) PRIMARY KEY,
+    job_id CHAR(9),
+    FOREIGN KEY (job_id) REFERENCES JOBS(job_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- Eğer ekstra bilgileri normalize etmeye karar verirseniz:
+CREATE TABLE EMPLOYEE_PROJECTS (
+    project_id CHAR(9) PRIMARY KEY,
+    employee_id CHAR(9),
+    project_name VARCHAR(255),
+    FOREIGN KEY (employee_id) REFERENCES EMPLOYEES(employee_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE EMPLOYEE_EDUCATION (
+    education_id CHAR(9) PRIMARY KEY,
+    employee_id CHAR(9),
+    education_detail VARCHAR(255),
+    FOREIGN KEY (employee_id) REFERENCES EMPLOYEES(employee_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
